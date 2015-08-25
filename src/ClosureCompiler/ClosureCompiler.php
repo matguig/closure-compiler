@@ -281,7 +281,88 @@ class ClosureCompiler
         $output = array();
         exec($command, $output, $return);
         $this->output = implode("\n", $output);
+        if ( $this->config['debug'] !== true ) {
+            $this->debug($command, $output);
+        }
         return $return;
+    }
+
+    public function debugFiles() {
+        $count = count( $this->config['sourceFileNames'] );
+        $debug = $this->getDebugLine($count . ' Fichier(s) :');
+
+        foreach ( $this->config['sourceFileNames'] as $file ) {
+            $debug .= $this->getDebugLine(' - ' . basename($file) . ' - ' . $file);
+        }
+        return $debug;
+    }
+
+    public function debugDiff() {
+        $cmdLine = 'cat ';
+        foreach ($this->config['sourceFileNames'] as $file) {
+            $cmdLine .= ' ' . $file;
+        }
+        $rawFile = str_replace('.min.js', '.raw.js', $this->config['targetFileName']);
+        $cmdLine .= ' >  ' . $rawFile;
+        $return = '';
+        $output = array();
+        exec($cmdLine, $output, $return);
+
+        $rawSize = filesize( $rawFile );
+        $minSize = filesize( $this->config['targetFileName'] );
+
+        $debug  = $this->getDebugLine('Original Size : ' . $rawSize);
+        $debug .= $this->getDebugLine('Compiled Size : ' . $minSize);
+        $percent = 100 - (($minSize * 100) / $rawSize);
+        $debug .= $this->getDebugLine('Saved : ' . $percent . '%' );
+        return $debug;
+    }
+
+    public function debugCmd( $cmd, $out ) {
+        $debug  = $this->getDebugLine('Commande google closure compiler : ');
+        $debug .= $this->getDebugLine($cmd);
+        $debug .= $this->getDebugLine('Retour : ');
+        $debug .= $this->getDebugLine($out[ count($out) - 1 ]);
+        return $debug;
+    }
+
+    public function debugInfos() {
+        $debug  = $this->getDebugLine('language In : ' . $this->config['languageIn']);
+        $debug .= $this->getDebugLine('compilation Level : ' . $this->config['compilationLevel']);
+        return $debug;
+    }
+
+    public function getDebugLine( $line ) {
+        return ' * ' . $line . PHP_EOL;
+    }
+
+    public function getDebugSep( $size = 50 ) {
+        $debug = '';
+        for ($i = 0; $i < $size; $i++) { 
+            $debug .= '- ';
+        }
+        return $this->getDebugLine( $debug );
+    }
+
+    public function debug( $cmd, $out ) {
+        $debug  = '/*' . PHP_EOL;
+        $debug .= $this->debugFiles();
+        $debug .= $this->getDebugSep();
+
+        $debug .= $this->debugDiff();
+        $debug .= $this->getDebugSep();
+
+        $debug .= $this->debugCmd( $cmd, $out );
+        $debug .= $this->getDebugSep();
+
+        $debug .= $this->debugInfos();
+
+        $debug .= ' */';
+
+        $file = $this->config['targetFileName'];
+        $fileopen=( fopen($file, 'a') );
+        fwrite($fileopen,$debug);
+        fclose($fileopen);
     }
 
     /**
