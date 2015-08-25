@@ -270,10 +270,11 @@ class ClosureCompiler
         }
 
         $command = $this->getBinary();
+        $command .= " --compilation_level={$this->config['compilationLevel']}";
+        $command .= " --language_in={$this->config['languageIn']}";
         foreach ($this->config['sourceFileNames'] as $file) {
             $command .= " --js={$file}";
         }
-
         $command .= " --js_output_file={$this->config['targetFileName']} 2>&1";
 
         $return = '';
