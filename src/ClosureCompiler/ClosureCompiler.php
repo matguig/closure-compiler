@@ -46,10 +46,13 @@ class ClosureCompiler
     protected $output = '';
 
     protected $config = array(
-        'sourceBaseDir' => '',
-        'targetBaseDir' => '',
-        'sourceFileNames' => array(),
-        'targetFileName' => 'compiled.js',
+        'sourceBaseDir'    => '',
+        'targetBaseDir'    => '',
+        'debug'            => false,
+        'languageIn'       => 'ECMASCRIPT3',
+        'compilationLevel' => 'WHITESPACE_ONLY',
+        'sourceFileNames'  => array(),
+        'targetFileName'   => 'compiled.js',
     );
 
     /**
@@ -199,6 +202,53 @@ class ClosureCompiler
     {
         $path = $this->config['targetBaseDir'] . $file;
         $this->config['targetFileName'] = $path;
+    }
+
+    /**
+     * Set the type of language
+     *
+     * @param string $languageIn
+     *
+     * @throws CompilerException
+     */
+    public function setLanguageIn( $languageIn ) {
+        $valid = array('ECMASCRIPT3', 'ECMASCRIPT5', 'ECMASCRIPT5_STRICT');
+        if ( in_array($languageIn, $valid) ) {
+            $this->config['languageIn'] = $languageIn;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Set the type of language
+     *
+     * @param string $languageIn
+     *
+     * @throws CompilerException
+     */
+    public function setCompilationLevel( $compilationLevel ) {
+        $valid = array('WHITESPACE_ONLY', 'SIMPLE_OPTIMIZATIONS', 'ADVANCED_OPTIMIZATIONS');
+        if ( in_array($compilationLevel, $valid) ) {
+            $this->config['compilationLevel'] = $compilationLevel;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Set debug value
+     *
+     * @param bool $languageIn
+     *
+     * @throws CompilerException
+     */
+    public function setDebug( $val ) {
+        if ( is_bool($val) ) {
+            $this->config['debug'] = $val;
+            return true;
+        }
+        return false;
     }
 
     /**
