@@ -276,12 +276,15 @@ class ClosureCompiler
             $command .= " --js={$file}";
         }
         $command .= " --js_output_file={$this->config['targetFileName']} 2>&1";
+        if ( $this->config['debug'] === true ) {
+            $command .= " --debug --formatting=PRETTY_PRINT --formatting=PRINT_INPUT_DELIMITER";
+        }
 
         $return = '';
         $output = array();
         exec($command, $output, $return);
         $this->output = implode("\n", $output);
-        if ( $this->config['debug'] !== true ) {
+        if ( $this->config['debug'] === true ) {
             $this->debug($command, $output);
         }
         return $return;
