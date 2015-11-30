@@ -341,7 +341,7 @@ class ClosureCompiler
 
     public function getDebugSep( $size = 50 ) {
         $debug = '';
-        for ($i = 0; $i < $size; $i++) { 
+        for ($i = 0; $i < $size; $i++) {
             $debug .= '- ';
         }
         return $this->getDebugLine( $debug );
@@ -366,6 +366,13 @@ class ClosureCompiler
         $fileopen=( fopen($file, 'a') );
         fwrite($fileopen,$debug);
         fclose($fileopen);
+    }
+
+    public function getTargetFileName() {
+        if ( isset( $this->config['targetFileName'] ) ) {
+            return $this->config['targetFileName'];
+        }
+        return NULL;
     }
 
     /**
